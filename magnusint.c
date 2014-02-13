@@ -3,9 +3,12 @@
 #include "magnus.h"
 #include "cubature.h"
 
+
 #define MAX_EVAL_INT 10000000
 #define REQ_ABS_ERROR 1e-8
 #define REQ_REL_ERROR 1e-4
+
+
 
 int magnus2aint(double wa, double waa, double *res){
   unsigned ndim=2;

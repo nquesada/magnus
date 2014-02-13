@@ -1,3 +1,12 @@
+/*! \file functionF.h
+ * \brief
+ * Provides the function that returns the product of the phase matching 
+ * function and the pump function. For this particular example the function 
+ * is gaussian and the exponential is evaluated only if the argument is 
+ * bigger that -36. If the number if smaller than \exp(-36) is rounded to zero.
+ */
+
+
 #include<math.h>
 #include<stdio.h>
 
