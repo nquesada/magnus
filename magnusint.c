@@ -6,7 +6,7 @@
 
 #define MAX_EVAL_INT 10000000
 #define REQ_ABS_ERROR 1e-8
-#define REQ_REL_ERROR 1e-4
+#define REQ_REL_ERROR 1e-7
 
 
 
@@ -29,7 +29,7 @@ int magnus2aint(double wa, double waa, double *res){
   double reqAbsError=REQ_ABS_ERROR;
   double reqRelError=REQ_REL_ERROR;
   double enorm=ERROR_L2;
-  
+ 
 
   hcubature(fdim,magnus2a,ws,ndim,xmin,xmax,(size_t)maxEval,reqAbsError,reqRelError,enorm,val,error);
   res[0]=val[0];
@@ -98,6 +98,34 @@ int magnus3int(double wa, double wb, double *res){
 
   hcubature(fdim,magnus3,ws,ndim,xmin,xmax,(size_t)maxEval,reqAbsError,reqRelError,enorm,val,error);
   //HERE IMPORTANT this is the prefactor of 3 in the definition of the integrals.
+  res[0]=val[0];
+  res[1]=error[0];
+  return 0;
+}
+
+
+int magnus3sint(double wa, double wb, double *res){
+  unsigned ndim=2;
+  unsigned fdim=1;
+  double xmin[ndim];
+  xmin[0]=-1.0;
+  xmin[1]=-1.0;
+  double xmax[ndim];
+  xmax[0]=1.0;
+  xmax[1]=1.0;
+ 
+  double val[fdim];
+  double error[fdim];
+  double ws[2];
+  ws[0]=wa;
+  ws[1]=wb;
+  double maxEval=MAX_EVAL_INT;
+  double reqAbsError=REQ_ABS_ERROR;
+  double reqRelError=REQ_REL_ERROR;
+  double enorm=ERROR_L2;
+  
+
+  hcubature(fdim,magnus3s,ws,ndim,xmin,xmax,(size_t)maxEval,reqAbsError,reqRelError,enorm,val,error);
   res[0]=val[0];
   res[1]=error[0];
   return 0;

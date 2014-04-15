@@ -74,3 +74,35 @@ int magnus3(unsigned ndim, const double *x, void *fdata, unsigned fdim, double *
   return 0;
 }
 
+
+
+int magnus3s(unsigned ndim, const double *x, void *fdata, unsigned fdim, double *fval){
+  double a,b,p,q;
+  p=x[0]/(1-x[0]*x[0]);
+  q=x[1]/(1-x[1]*x[1]);
+  //jacobians
+  double tmp0,tmp1;
+  /*
+  tmp0=1-x[0]*x[0];
+  tmp0=(1+x[0]+x[0])/(tmp0*tmp0);
+  tmp1=1-x[1]*x[1];
+  tmp1=(1+x[1]+x[1])/(tmp1*tmp1);
+  */
+  
+  tmp0=1-x[0]*x[0];
+  tmp0=(1+x[0]*x[0])/(tmp0*tmp0);
+
+  tmp1=1-x[1]*x[1];
+  tmp1=(1+x[1]*x[1])/(tmp1*tmp1);
+  
+  a=((double *) fdata)[0];
+  b=((double *) fdata)[1];
+  /*
+  fprintf(stdout,"%lf %lf \n",x[0],x[1]);
+  fprintf(stdout,"%lf %lf %lf %lf\n",p,q,tmp0,tmp1);
+  fprintf(stdout,"%lf %lf %lf\n",F(p,q,p+q),F(a,q,a+q),F(p,b,p+b));*/
+  fval[0]=tmp0*tmp1*(F(p,q,p+q)*F(a,q,a+q)*F(p,b,p+b));
+
+  return 0;
+}
+

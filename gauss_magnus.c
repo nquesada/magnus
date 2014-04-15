@@ -61,9 +61,6 @@ as REQ_ABS_ERROR */
 #define v M_4_S_3*s*eab
 
 
-
-
-
 int gaussianpvarg(unsigned ndim, const double *x, void *fdata, unsigned fdim, double *fval){
   double p,q;
   p=x[0]/(1-x[0]);
@@ -74,26 +71,16 @@ int gaussianpvarg(unsigned ndim, const double *x, void *fdata, unsigned fdim, do
   tmp0=1.0/(tmp0*tmp0);
   tmp1=1-x[1];
   tmp1=1.0/(tmp1*tmp1);
-
   double wa,wb;
   wa=((double *) fdata)[0];
   wb=((double *) fdata)[1];
   double quad,lin;
 
-
-
   quad=-(Q3a*p*p+Q3b*p*q+Q3c*q*q);
   lin=v*(wa*q+wb*p);
   fval[0]=tmp0*tmp1*exp(quad)*cos(lin);
-
-  //  fprintf(stdout,"from gaussianpvarg %lf %lf %.16e\n",p,q,fval[0]);
   return 0;
 }
-
-
-
-
-
 
 int gaussianpvval(double fdata[2], double *res){
   unsigned ndim=2;
@@ -111,22 +98,16 @@ int gaussianpvval(double fdata[2], double *res){
   double reqAbsError=REQ_ABS_ERROR;
   double reqRelError=REQ_REL_ERROR;
   double enorm=ERROR_L2;
-  fprintf(stdout,"from gaussianpvval\n");
-
   hcubature(fdim,gaussianpvarg,fdata,ndim,xmin,xmax,(size_t)maxEval,reqAbsError,reqRelError,enorm,val,error);
   res[0]=val[0];
   res[1]=error[0];
   return 0;
 }
 
-
-
-
 double J3(double wa,double wb){
   double res[2];
   double ws[2];
-
-  double W=M_PI*M_PI*M_2_SQRTPI*s*s*s/(3*sqrt(R4))*exp(-(wa*wa*Q1a+wa*wb*Q1b+wb*wb*Q1c));
+  double W=M_PI*M_PI*M_2_SQRTPI*s*s*s/(3.0*sqrt(R4))*exp(-(wa*wa*Q1a+wa*wb*Q1b+wb*wb*Q1c));
   double Z=4*sqrt(M_PI)*s*s*s*exp(-(wa*wa*Na+wb*wa*Nb+wb*wb*Nc)/3.0);
 
   double bound=W+Z*M_PI/(2*sqrt(R4));
@@ -134,29 +115,16 @@ double J3(double wa,double wb){
     return eps;
   }
   else{
-  ws[0]=wa;
-  ws[1]=wb;
-  gaussianpvval(ws,res);
-  double V=res[0];
-  return -W+V*Z;
+    ws[0]=wa;
+    ws[1]=wb;
+    gaussianpvval(ws,res);
+    double V=res[0];
+    return -W+V*Z;
   }
-
-
-
-
-
-
-
 }
 
 
-
-
-
-
-
 int main(){
-  //  fprintf(stdout,"%lf %lf\n",(double)a,(double)b);
   double res[2];
   double ws[2];
   double wa,wb;
@@ -202,7 +170,7 @@ int main(){
   gaussianpvval(ws,res);
   fprintf(stdout,"V=%lf +/- %lf\n",res[0],res[1]);
   double V=res[0];
-  double W=M_PI*M_PI*M_2_SQRTPI*s*s*s/(3*sqrt(R4))*exp(-(wa*wa*Q1a+wa*wb*Q1b+wb*wb*Q1c));
+  double W=M_PI*M_PI*M_2_SQRTPI*s*s*s/(3.0*sqrt(R4))*exp(-(wa*wa*Q1a+wa*wb*Q1b+wb*wb*Q1c));
   double Z=4*sqrt(M_PI)*s*s*s*exp(-(wa*wa*Na+wb*wa*Nb+wb*wb*Nc)/3.0);
 
 
