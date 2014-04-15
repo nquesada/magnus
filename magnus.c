@@ -66,17 +66,10 @@ int magnus3(unsigned ndim, const double *x, void *fdata, unsigned fdim, double *
   a=((double *) fdata)[0];
   b=((double *) fdata)[1];
   //The next line was generated automatically from mathematica, do not touch!
-  fval[0]=tmp1*tmp2*tmp3*tmp4*(F(a,c,a + c + p - q)*F(d,b,b + d - p)*F(d,c,c + d - q) - 
-			       F(a,c,a + c - p - q)*F(d,b,b + d + p)*F(d,c,c + d - q) - 
-			       F(a,c,a + c + p)*F(d,b,b + d - p - q)*F(d,c,c + d - q) + 
-			       F(a,c,a + c - p)*F(d,b,b + d + p - q)*F(d,c,c + d - q) + 
-			       2*F(a,c,a + c - p)*F(d,b,b + d - q)*F(d,c,c + d - p - q) - 
-			       2*F(a,c,a + c + p)*F(d,b,b + d - q)*F(d,c,c + d + p - q) + 
-			       (-(F(a,c,a + c + p + q)*F(d,b,b + d - p)) + F(a,c,a + c - p + q)*F(d,b,b + d + p))*
-			       F(d,c,c + d + q) + F(a,c,a + c + p)*F(d,b,b + d - p + q)*F(d,c,c + d + q) - 
-			       F(a,c,a + c - p)*F(d,b,b + d + p + q)*F(d,c,c + d + q) - 
-			       2*F(a,c,a + c - p)*F(d,b,b + d + q)*F(d,c,c + d - p + q) + 
-			       2*F(a,c,a + c + p)*F(d,b,b + d + q)*F(d,c,c + d + p + q))/(p*q);
+  fval[0]=tmp1*tmp2*tmp3*tmp4*((F(a,d,a + d - p)*(F(c,b,b + c - q)*F(c,d,c + d - p - q) - 
+						  F(c,b,b + c + q)*F(c,d,c + d - p + q)) + 
+				F(a,d,a + d + p)*(-(F(c,b,b + c - q)*F(c,d,c + d + p - q)) + 
+						  F(c,b,b + c + q)*F(c,d,c + d + p + q)))/(p*q));
   //  fprintf(stdout,"%lf %lf %lf %lf %lf\n",x[0],x[1],x[2],x[3],fval[0]);
   return 0;
 }

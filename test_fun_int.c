@@ -7,8 +7,8 @@
 
 
 int main(){
-  double wa=1/3.0;
-  double wb=-1/3.0;
+  double wa=1/2.0;
+  double wb=-1/2.0;
   double waa=wa;
   double wbb=wb;
   double res[2];

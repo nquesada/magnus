@@ -98,7 +98,7 @@ int magnus3int(double wa, double wb, double *res){
 
   hcubature(fdim,magnus3,ws,ndim,xmin,xmax,(size_t)maxEval,reqAbsError,reqRelError,enorm,val,error);
   //HERE IMPORTANT this is the prefactor of 3 in the definition of the integrals.
-  res[0]=val[0]/3.0;
-  res[1]=error[0]/3.0;
+  res[0]=val[0];
+  res[1]=error[0];
   return 0;
 }
