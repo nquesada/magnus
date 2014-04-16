@@ -1,3 +1,4 @@
+
 /*! \file magnus.h
  * \brief Defines the functions that are required by the cubature library
  * to perform the numerical integration. magnus2a, magnus2b and magnus3
@@ -40,4 +41,5 @@ int magnus2a(unsigned ndim, const double *x, void *fdata, unsigned fdim, double 
 int magnus2b(unsigned ndim, const double *x, void *fdata, unsigned fdim, double *fval);
 int magnus3(unsigned ndim, const double *x, void *fdata, unsigned fdim, double *fval);
 int magnus3s(unsigned ndim, const double *x, void *fdata, unsigned fdim, double *fval);
+int magnus3w(unsigned ndim, const double *x, void *fdata, unsigned fdim, double *fval);
 #endif

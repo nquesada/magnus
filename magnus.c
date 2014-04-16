@@ -106,3 +106,35 @@ int magnus3s(unsigned ndim, const double *x, void *fdata, unsigned fdim, double 
   return 0;
 }
 
+
+
+int magnus3w(unsigned ndim, const double *x, void *fdata, unsigned fdim, double *fval){
+  double a,b,w,p,q;
+  p=x[0]/(1-x[0]);
+  q=x[1]/(1-x[1]*x[1]);
+  w=x[2]/(1-x[2]*x[2]);
+  //jacobians
+  double tmp1,tmp2,tmp3;
+  tmp1=1-x[0];
+  tmp1=1.0/(tmp1*tmp1);
+  tmp2=1-x[1]*x[1];
+  tmp2=(1+x[1]*x[1])/(tmp2*tmp2);
+  tmp3=1-x[2]*x[2];
+  tmp3=(1+x[2]*x[2])/(tmp3*tmp3);
+
+
+  a=((double *) fdata)[0];
+  b=((double *) fdata)[1];
+  //The next line was generated automatically from mathematica, do not touch!
+  fval[0]=tmp1*tmp2*tmp3*(-(F(a,w,a + w)*F(q,b,b - p + q)*
+			    F(q,w,-p + q + w)) + 
+			  F(a,w,a + w)*F(q,b,b + p + q)*
+			  F(q,w,p + q + w) - 
+			  F(a,q,a - p + q)*F(w,b,b + w)*
+			  F(w,q,-p + q + w) + 
+			  F(a,q,a + p + q)*F(w,b,b + w)*
+			  F(w,q,p + q + w))/p;
+  //  fprintf(stdout,"%lf %lf %lf %lf %lf\n",x[0],x[1],x[2],x[3],fval[0]);
+  return 0;
+}
+

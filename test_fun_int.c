@@ -19,6 +19,8 @@ int main(){
   fprintf(stdout,"magnus2bint(%lf, %lf ): %.16e +/- %.16e\n",waa,waa,res[0],res[1]);
   magnus3sint(wa,wb,res);
   fprintf(stdout,"magnus3sint(%lf, %lf ): %.16e +/- %.16e\n",wa,wb,res[0],res[1]);
+  magnus3wint(wa,wb,res);
+  fprintf(stdout,"magnus3wint(%lf, %lf ): %.16e +/- %.16e\n",wa,wb,res[0],res[1]);
   magnus3int(wa,wb,res);
   fprintf(stdout,"magnus3int(%lf, %lf ): %.16e +/- %.16e\n",wa,wb,res[0],res[1]);
   return 0;

@@ -61,7 +61,7 @@ as REQ_ABS_ERROR */
 #define v M_4_S_3*s*eab
 
 
-int gaussianpvarg(unsigned ndim, const double *x, void *fdata, unsigned fdim, double *fval){
+int gaussianarg(unsigned ndim, const double *x, void *fdata, unsigned fdim, double *fval){
   double p,q;
   p=x[0]/(1-x[0]);
   q=x[1]/(1-x[1]);
@@ -82,7 +82,7 @@ int gaussianpvarg(unsigned ndim, const double *x, void *fdata, unsigned fdim, do
   return 0;
 }
 
-int gaussianpvval(double fdata[2], double *res){
+int gaussianval(double fdata[2], double *res){
   unsigned ndim=2;
   unsigned fdim=1;
   double xmin[ndim];
@@ -98,7 +98,7 @@ int gaussianpvval(double fdata[2], double *res){
   double reqAbsError=REQ_ABS_ERROR;
   double reqRelError=REQ_REL_ERROR;
   double enorm=ERROR_L2;
-  hcubature(fdim,gaussianpvarg,fdata,ndim,xmin,xmax,(size_t)maxEval,reqAbsError,reqRelError,enorm,val,error);
+  hcubature(fdim,gaussianarg,fdata,ndim,xmin,xmax,(size_t)maxEval,reqAbsError,reqRelError,enorm,val,error);
   res[0]=val[0];
   res[1]=error[0];
   return 0;
@@ -117,7 +117,7 @@ double J3(double wa,double wb){
   else{
     ws[0]=wa;
     ws[1]=wb;
-    gaussianpvval(ws,res);
+    gaussianval(ws,res);
     double V=res[0];
     return -W+V*Z;
   }
@@ -132,6 +132,7 @@ int main(){
   wb=-1.0/3;
   ws[0]=wa;
   ws[1]=wb;
+  /*
   fprintf(stdout,"sa=%.16e\n",sa);
   fprintf(stdout,"sb=%.16e\n",sb);
   fprintf(stdout,"sc=%.16e\n",sc);
@@ -166,8 +167,8 @@ int main(){
   fprintf(stdout,"Q3b=%.16e\n",Q3b);
   fprintf(stdout,"Q3c=%.16e\n",Q3c);
 
-
-  gaussianpvval(ws,res);
+  */
+  gaussianval(ws,res);
   fprintf(stdout,"V=%lf +/- %lf\n",res[0],res[1]);
   double V=res[0];
   double W=M_PI*M_PI*M_2_SQRTPI*s*s*s/(3.0*sqrt(R4))*exp(-(wa*wa*Q1a+wa*wb*Q1b+wb*wb*Q1c));
@@ -177,8 +178,8 @@ int main(){
   fprintf(stdout,"W=%lf\n",W);
   fprintf(stdout,"Z=%lf\n",Z);
   fprintf(stdout,"V*Z=%lf\n",V*Z);
-  fprintf(stdout,"\n\nJ_3=%lf\n",-2*M_PI*(-W+V*Z));
-  fprintf(stdout,"\n\nJ_3=%lf\n",-2*M_PI*J3(wa,wb));
+  fprintf(stdout,"J_3(%lf,%lf)=%lf\n",wa,wb,-W+V*Z);
+  fprintf(stdout,"J_3(%lf,%lf)=%lf\n",wa,wb,J3(wa,wb));
 
   return 0;
 }
