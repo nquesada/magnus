@@ -1,0 +1,186 @@
+\documentclass[10pt,letterpaper]{article}
+\usepackage{graphicx}
+\usepackage[fleqn]{amsmath}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{fullpage}
+\usepackage{setspace}
+%\usepackage{lscape}
+%\doublespacing
+\usepackage{esint}
+\newcommand{\ket}[1]{| #1 \rangle}
+\newcommand{\bra}[1]{\langle #1 |}
+\newcommand{\braket}[1]{\langle #1 \rangle}
+\DeclareMathOperator{\tr}{tr}
+\newcommand{\hc}{\text{h.c.}}
+%\DeclareMathOperator{\fint}{\intbar}
+
+
+
+\title{\texttt{README} for the Magnus library}
+\author{Nicol\'as Quesada\footnote{e-mail: n.quesada@utoronto.ca}}
+
+\begin{document}
+\maketitle
+
+
+
+The Magnus library comprises two different and independent software pieces. Both of them perform numerical integration using the fantastic \verb|Cubature| library developed by Steven G. Johnson at MIT (http://ab-initio.mit.edu/wiki/index.php/Cubature).\\
+\section{Gaussian approximated for the third order Magnus term}
+The first one is completely contained in the file \verb|gauss_magnus.c|. It calculates the Magnus third order Magnus correction for a phase matching and pump functions of the form:
+\begin{eqnarray}
+\Phi(\omega_a,\omega_b,\omega_p)&=&\exp(-(s_a \omega_a+s_b \omega_b-s_p \omega_p)^2)\\
+\alpha(\omega_p)&=&\frac{\sigma}{\sqrt{\pi}} \exp(-\sigma^2 \omega_p^2)
+\end{eqnarray}
+The third order Magnus term can be written as:
+\begin{eqnarray}\label{J_3}
+J_3(\omega_a,\omega_b)&=&-W(\omega_a,\omega_b)+V(\omega_a,\omega_b) Z(\omega_a,\omega_b)\\
+Z(\omega_a,\omega_b)&=&4\sqrt{\pi} \sigma^3 \varepsilon^3 \exp\left(-\mathbf{u} \mathbf{N} \mathbf{u}^T/3\right)\\
+W(\omega_a,\omega_b)&=&\frac{2\pi^{3/2} \varepsilon^3 \sigma^3}{3 R^2} \exp\left(-\mathbf{u}\mathbf{Q}_1\mathbf{u}^T/R^4 \right)\\
+V(\omega_a,\omega_b)&=& \int_0^{\infty} dr \int_0^{\infty} dq \exp\left(-(r,q) \mathbf{Q}_3 (r,q)^T \right) \times \nonumber\\
+&&\cos\left(4 \sigma \eta_{ab}( \omega_a q+ \omega_b r)/\sqrt{3}  \right)\nonumber
+\end{eqnarray}
+with:
+\begin{eqnarray}\label{Nu}
+\mathbf{N}&=& \left(
+\begin{array}{cc}
+\chi_a^2 & \chi^2 \\
+\chi^2 & \chi_b^2 \\
+\end{array}
+\right)\\ 
+\mathbf{u}&=&(\omega_a-\tilde \omega_a,\omega_b-\tilde \omega_b) \nonumber\\
+\eta _{a/b}&=&s_p-s_{a/b} \nonumber\\
+\chi ^2&=&\sigma ^2+\eta _a \eta _b \nonumber\\
+\chi _{a/b}^2&=&\sigma ^2+\eta _{a/b}^2. \nonumber\\
+\eta_{ab} &=&-\eta_{ba}=\eta _a-\eta _b \nonumber\\
+R^4&=&4 \chi_a^2 \chi_b^2-\chi^4=4(\eta_a-\eta_b)^2 \sigma^2+3 (\eta_a \eta_b+\sigma^2)^2 \nonumber\\
+M^4&=&4 \chi_a^2 \chi_b^2-3\chi^4\nonumber\\
+\mathbf{Q}_1&=&
+\left(
+\begin{array}{cc}
+M^4 \chi _a^2 & \chi ^6 \\
+\chi ^6 & M^4 \chi _b^2
+\end{array}
+\right)\\
+\mathbf{Q}_3&=&
+\left(
+\begin{array}{cc}
+2  \chi _a^2 &  \chi ^2  \\
+ \chi ^2  & 2  \chi _b^2 \\
+\end{array}
+\right)
+\end{eqnarray}
+The library computes numerically the integral $V$ using the \verb|hcubature| routine from \verb|cubature|.
+The user is required to provide values for 4 macros at the beginning of the file. The first three:
+\begin{verbatim}
+#define MAX_EVAL_INT 10000000 //Maximum number of evaluations
+#define REQ_ABS_ERROR 1e-10 //Required absolute error
+#define REQ_REL_ERROR 1e-8 //Required relative error   
+\end{verbatim}
+give the maximum number of times the function being integrated can be evaluated, the second one is the required absolute error in the integration and the third is the required relative error. 
+To calculate numerical integrals extending to infinity one must perform the following changes of variables:
+\begin{eqnarray}\label{cv}
+\int_{-\infty}^\infty dx f(x)&=&\int_{-1}^1 dt f\left(\frac{t}{1-t^2}\right) \frac{1+t^2}{(1-t^2)^2}\\
+\int_{0}^{\infty} dx f(x) &=& \int_0^1 f\left(\frac{t}{1-t} \right) \frac{1}{(1-t)^2}\nonumber
+\end{eqnarray}
+We can now write $V$ in the following way:
+\begin{eqnarray}
+V(\omega_a,\omega_b)&=& \int_0^{\infty} dr \int_0^{\infty} dq g(\omega_a,\omega_b,r,q)\\
+g(\omega_a,\omega_b,r,q)&=&\exp\left(-(r,q) \mathbf{Q}_3 (r,q)^T \right) \cos\left(4 \sigma \eta_{ab}( \omega_a q+ \omega_b r)/\sqrt{3}  \right)\nonumber
+\end{eqnarray}
+Now we can use (\ref{cv}) twice to rewrite
+\begin{eqnarray}\label{int}
+V(\omega_a,\omega_b)&=& \int_0^{1} dt_r \int_0^{1} dt_q g\left(\omega_a,\omega_b,\frac{t_r}{1-t_r},\frac{t_q}{1-t_q}\right) \frac{1}{(1-t_r)^2} \frac{1}{(1-t_q)^2}\\
+&=&\int_0^{1} dt_r \int_0^{1} dt_q \tilde g(\omega_a,\omega_b,t_r,t_q).
+\end{eqnarray}
+\verb|int gaussianarg(unsigned ndim, const double *x, void *fdata, unsigned fdim, double *fval)| calculates precisely $g(\omega_a,\omega_b,t_r,t_q)$:
+\begin{itemize}
+\item  \verb|unsigned ndim| should be set to 2, since we are dealing with two dimensional integrals.
+\item  \verb|const double *x| is a two dimensional array containing the values of the variable being integrated, \verb|x[0]|$=t_r$, \verb|x[1]|$=t_q$.
+\item  \verb|void *fdata| is a two dimensional array containing the values of the other variables, \verb|fdata[0]|$=\omega_a$, \verb|fdata[1]|$=\omega_b$.
+\item  \verb|unsigned fdim| should be set to 1 since we are integrating a scalar function.
+\item  \verb|double *fval| is a one dimensional array, \verb|fval[0]|$=\tilde g(\omega_a,\omega_b,t_r,t_q)$.
+\end{itemize}
+
+The next function in \verb|gauss_magnus.c|, \verb|int gaussianval(double fdata[2], double *res)| uses \verb|gaussianarg| and \verb|cubature| to calculate the integral (\ref{int}). Its argument are:
+\begin{itemize}
+\item \verb|double fdata[2]| is a two dimensional array containing the values of the other variables, \verb|fdata[0]|$=\omega_a$, \verb|fdata[1]|$=\omega_b$.
+\item \verb|double *res| contains the values of the integral in \verb|res[0]| and the estimated error \verb|res[1]|.
+\end{itemize}
+Finally the function \verb|double J3(double wa,double wb)| calculates $J_3$ as given in (\ref{J_3}). It first calculates the bound:
+\begin{eqnarray}
+|J_3(\omega_a,\omega_b)| &\leq& \frac{2\pi^{3/2} \sigma^3}{3 R^2} \exp\left(-\mathbf{u}\mathbf{Q}_1\mathbf{u}^T/R^4 \right)\\
+&&+\frac{2 \pi^{3/2}\sigma^3 \varepsilon^3}{R^2} \exp\left(-\mathbf{u} \mathbf{N} \mathbf{u}^T/3\right)
+\end{eqnarray}
+which is analytical. If this bound is less than the macro \verb|eps| the integral is approximated to be \verb|eps|$\ll 1$. If it is bigger than is calculated using \verb|gaussianval| and combined with $W$ and $Z$ to give $J_3$.
+
+
+\section{General calculation of the Second and Third order Magnus terms}
+For the Hamiltonian of SPDC:
+\begin{eqnarray}
+H_I(t)&=& \int d\omega_a d\omega_b d\omega_p \left( e^{i (\omega_a+\omega_b-\omega_p)  t} F\left(\omega _a,\omega _b,\omega _p\right) a^\dagger (\omega _a)b^\dagger (\omega _b).+ \hc  \right),
+\end{eqnarray}
+We use the convention $\int \equiv \int_{-\infty}^{\infty}$. The Magnus correction terms can be written in terms of the functions:
+\begin{eqnarray}\label{g2}
+G_2(\omega_a,\omega_a') =  \int   d\omega_{d} \fint  \frac{d\omega_p}{\omega_p} F\left(\omega_a,\omega _d,\omega _a+\omega _p+ \omega _d \right) \bar{F}\left(\omega _a',\omega _d,\omega _a'+\omega _p+\omega _d\right) \nonumber
+\end{eqnarray}
+\begin{eqnarray}\label{h2}
+H_2(\omega_b,\omega_b')=  \int   d\omega_c \fint \frac{d\omega_p}{\omega_p} F\left(\omega _c,\omega _b,\omega _b+\omega_c+\omega _p\right) \bar{F}\left(\omega _c,\omega _b',\omega  _b'+\omega _p+\omega_c\right). \nonumber
+\end{eqnarray}
+\begin{eqnarray}\label{J_3}
+J_3(\omega_a,\omega_b)&=&\int  d\omega_c d\omega_d \Big\{ \frac{\pi^2}{3} 
+\bar{F}\left(\omega _c,\omega _d,\omega _c+\omega _d\right)  F\left(\omega _a,\omega _d,\omega _a+\omega _d\right) F\left(\omega _c,\omega _b,\omega _b+\omega_c\right)+ \nonumber\\
+&&\fint  \frac{d \omega_p}{\omega_p} \frac{d \omega_q}{\omega_q}  \bar{F}\left(\omega _c,\omega _d,\omega _c+\omega _d+\omega _p+\omega _q\right)  F\left(\omega _a,\omega _d,\omega _a+\omega _d+\omega _p\right) F\left(\omega _c,\omega _b,\omega _b+\omega_c+\omega _q\right)  \Big\}. \nonumber\\
+\end{eqnarray}
+\begin{eqnarray}
+K(\omega_a,\omega_b)&=& \pi  \int d \omega \Big(G_2\left(\omega _a,\omega \right) J_1\left(\omega ,\omega _b\right)+J_1\left(\omega _a,\omega \right) H_2\left(\omega _b,\omega \right)  \Big)\\
+&=& \pi \int d \omega d \omega_q \fint \frac{d \omega_p}{\omega_p} \Big(F\left(\omega ,\omega _b,\omega _b+\omega
+   \right) \bar{F}\left(\omega ,\omega _q,\omega
+   _p+\omega _q+\omega \right) F\left(\omega
+   _a,\omega _q,\omega _a+\omega _p+\omega
+   _q\right)\nonumber \\
+&&+F\left(\omega _a,\omega ,\omega
+   _a+\omega \right) \bar{F}\left(\omega _q,\omega
+   ,\omega _p+\omega _q+\omega \right)
+   F\left(\omega _q,\omega _b,\omega _b+\omega
+   _p+\omega _q\right) \Big)
+\end{eqnarray}
+with $J_1(\omega_a,\omega_b)=F(\omega_a,\omega_b,\omega_a+\omega_b)$. In what follows it is assumed that $\bar F =F$.
+Finally note that any principal value integral can be written as:
+\begin{eqnarray}\label{pv}
+\fint \frac{dx}{x} f(x)= \int_0^{\infty} \frac{dx}{x} (f(x)-f(-x))
+\end{eqnarray}
+To calculate the Magnus correction there three different files are provided. The first one \verb|functionF.c| provides with the function $F(\omega_a,\omega_b,\omega_p)$. The evaluation of $F$ should be as efficient as possible since this function will be called many times during the calculation of any Magnus term. In the file \verb|magnus.c| functions that calculate the integrands associated with each magnus term are provided. They nevertheless evaluate the functions in the transformed variables according to (\ref{cv}) and (\ref{pv}). \\ The functions
+\verb|int magnusNx(unsigned ndim, const double *x, void *fdata, unsigned fdim, double *fval)| follow the same patter:
+\begin{itemize}
+\item \verb|unsigned ndim| the number of dimensions that need to be integrated.
+\item \verb|const double *x| the values of dummy integration variables.
+\item \verb|void *fdata| the variables of the actual arguments of the Magnus functions.
+\item \verb|unsigned fdim| is al always equal to one since the functions being integrated are scalar.
+\item \verb|double *fval| is where the value of the integrand is returned.
+\end{itemize}
+A simple example clarifies the notation. Let us look at 
+\begin{eqnarray}
+G_2(\omega_a,\omega_a') &=&  \int   d\omega_{d} \fint  \frac{d\omega_p}{\omega_p} F\left(\omega_a,\omega _d,\omega _a+\omega _p+ \omega _d \right) \bar{F}\left(\omega _a',\omega _d,\omega _a'+\omega _p+\omega _d\right) \\
+&=&\int_{-\infty}^{\infty}   d\omega_{d} \int_0^{\infty}  d\omega_p \frac{1}{\omega_p} \Big( F\left(\omega_a,\omega _d,\omega _a+\omega _p+ \omega _d \right) \bar{F}\left(\omega _a',\omega _d,\omega _a'+\omega _p+\omega _d\right)\\
+&& -
+F\left(\omega_a,\omega _d,\omega _a-\omega _p+ \omega _d \right) \bar{F}\left(\omega _a',\omega _d,\omega _a'-\omega _p+\omega _d\right) \Big) \nonumber
+\end{eqnarray}
+In the last equation identity (\ref{pv}) was used. To perform the integral we need to switch variables again using (\ref{cv}), $\omega_d=t_d/(1-t_d)$, $\omega_p=t_p/(1-t_p^2)$ to obtain:
+\begin{eqnarray}
+G_2(\omega_a,\omega_a') &=& \int_0^1 dt_d \int_{-1}^1 d t_p \left\{
+\frac{1}{(1-t_d)^2} \frac{1+t_p^2}{(1-t_p^2)^2}  \right\} \frac{1}{\frac{t_p}{1-t_p^2}}\nonumber\\
+&&\Big(
+F\left(\omega_a,\frac{t_d}{1-t_d},\omega_a+\frac{t_d}{1-t_d}+\frac{t_p}{1-t_p^2}\right) F\left(\omega_a' ,\frac{t_d}{1-t_d},\omega_a' +\frac{t_d}{1-t_d}+\frac{t_p}{1-t_p^2}\right)\\
+&&-F\left(\omega_a,\frac{t_d}{1-t_d},\omega_a+\frac{t_d}{1-t_d}-\frac{t_p}{1-t_p^2}\right) F\left(\omega_a' ,\frac{t_d}{1-t_d},\omega_a' +\frac{t_d}{1-t_d}-\frac{t_p}{1-t_p^2}\right)\Big)
+\end{eqnarray}
+The term inside the $\{ \}$ is the jacobian of the transformation. In this example then \verb|x[0]|=$t_d$, \verb|x[1]|$=t_p$, \verb|fdata[0]|$=\omega_a$, \verb|fdata[1]|$=\omega_a'$. Having explained the use of the function in \verb|magnus.c| explaining \verb|magnusint.c| is easy. Each function then call the corresponding function in \verb|magnus.c| and performs the integrals using \verb|cubature|. So for instance \verb|int magnus2aint(double wa, double waa, double *res)| calls \verb|magnus2a| and performs the integral for the values \verb|wa|$=\omega_a$, \verb|waa|$=\omega_a'$ returning the value of the integral and its error in $\verb|res[0]|$ and $\verb|res[1]|$.
+One final clarification, \verb|magnus2a| calculates $G_2$, \verb|magnus2b| calculates $H_2$, \verb|magnus3s| calculates the first term (the one which requires a 2 dimensional integration) that defines $J_3$ omitting the prefactor of $\pi^2/3$, \verb|magnus3| calculates the second term in $J_3$ (which requires a 4 dimensional integration) and finally \verb|magnus3w| calculates $K$ omitting the prefactor of $\pi$.
+
+
+
+\bibliographystyle{ieeetr}
+\bibliography{report}
+
+
+\end{document}

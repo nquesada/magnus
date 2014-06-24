@@ -6,15 +6,15 @@
 
 /* Values for cubature */
 #define MAX_EVAL_INT 10000000 //Maximum number of evaluations
-#define REQ_ABS_ERROR 1e-10 //Required absolute error
-#define REQ_REL_ERROR 1e-8 //Required relative error
+#define REQ_ABS_ERROR 1e-6 //Required absolute error
+#define REQ_REL_ERROR 1e-4 //Required relative error
 
 /* Value used to truncate J_3 using the bound for J_3
 obtained in the paper. If the bound on J_3 is less
 eps the J_3 is not calculated explicitly and it is 
 assumed to be zero. eps should be at least as small
 as REQ_ABS_ERROR */
-#define eps 1e-8
+#define eps 1e-6
 
 
 /* This is simply 4/sqrt(3) to 20 decimal places*/
@@ -22,9 +22,16 @@ as REQ_ABS_ERROR */
 
 
 /* Values that define the problem */
-#define sa  34.0
-#define sb  36.0
-#define sc  40.0
+/*#define sa  320.049
+#define sb  317.973
+#define sc  319.008
+#define s   1.0 //\sigma
+*/
+
+#define sa  10.0
+#define sb  11.0
+#define sc  9.0
+
 #define s   1.0 //\sigma
 
 /* derived quantitities, do not modify! */
@@ -33,8 +40,6 @@ as REQ_ABS_ERROR */
 #define eb  sc-sb //\eta_b
 
 
-#define eab sb-sa  //\eta_{ab}
-#define eba sa-sb  //\eta_{ba}
 
 
 #define c2  (s*s+(sc-sa)*(sc-sb)) //\chi^2
@@ -58,7 +63,7 @@ as REQ_ABS_ERROR */
 #define Q3c (2*cb2)
 
 /* This quantity defines the prefactor inside the cosine */
-#define v M_4_S_3*s*eab
+#define vv M_4_S_3*s*(sb-sa)
 
 
 int gaussianarg(unsigned ndim, const double *x, void *fdata, unsigned fdim, double *fval){
@@ -74,11 +79,20 @@ int gaussianarg(unsigned ndim, const double *x, void *fdata, unsigned fdim, doub
   double wa,wb;
   wa=((double *) fdata)[0];
   wb=((double *) fdata)[1];
-  double quad,lin;
+  double quad,lin,pr;
 
   quad=-(Q3a*p*p+Q3b*p*q+Q3c*q*q);
-  lin=v*(wa*q+wb*p);
+  //  fprintf(stdout,"quad=%lf\n",quad);
+  
+  pr=(wa*q)+(wb*p);
+  lin=vv*pr;
+  //  fprintf(stdout,"p= %lf q= %lf v= %lf wa= %lf wb= %lf lin= %lf pr= %.16e\n",p,q,vv,wa,wb,lin,pr);
+
+  // fprintf(stdout,"jacs= %lf %lf\n",tmp0,tmp1);
+
   fval[0]=tmp0*tmp1*exp(quad)*cos(lin);
+  //  fprintf(stdout,"val=%lf\n",fval[0]);
+
   return 0;
 }
 
@@ -125,34 +139,38 @@ double J3(double wa,double wb){
 
 
 int main(){
+
   double res[2];
   double ws[2];
+  /*
   double wa,wb;
   wa=1.0/2;
   wb=-1.0/3;
   ws[0]=wa;
   ws[1]=wb;
-  /*
+  */
+
+
+  
   fprintf(stdout,"sa=%.16e\n",sa);
   fprintf(stdout,"sb=%.16e\n",sb);
   fprintf(stdout,"sc=%.16e\n",sc);
 
 
-  fprintf(stdout,"ca=%.16e\n",ca2);
-  fprintf(stdout,"cb=%.16e\n",cb2);
-  fprintf(stdout,"cc=%.16e\n",c2);
+  fprintf(stdout,"ca2=%.16e\n",ca2);
+  fprintf(stdout,"cb2=%.16e\n",cb2);
+  fprintf(stdout,"cc2=%.16e\n",c2);
 
 
   fprintf(stdout,"ea=%.16e\n",ea);
   fprintf(stdout,"eb=%.16e\n",eb);
-  fprintf(stdout,"eab=%.16e\n",eab);
 
 
   fprintf(stdout,"Q1a=%.16e\n",Q1a);
   fprintf(stdout,"Q1b=%.16e\n",Q1b);
   fprintf(stdout,"Q1c=%.16e\n",Q1c);
 
-  fprintf(stdout,"v=%.16e\n",v);
+  fprintf(stdout,"v=%.16e\n",vv);
 
   fprintf(stdout,"Na=%.16e\n",Na);
   fprintf(stdout,"Nb=%.16e\n",Nb);
@@ -167,8 +185,8 @@ int main(){
   fprintf(stdout,"Q3b=%.16e\n",Q3b);
   fprintf(stdout,"Q3c=%.16e\n",Q3c);
 
-  */
-  gaussianval(ws,res);
+  
+  /*  gaussianval(ws,res);
   fprintf(stdout,"V=%lf +/- %lf\n",res[0],res[1]);
   double V=res[0];
   double W=M_PI*M_PI*M_2_SQRTPI*s*s*s/(3.0*sqrt(R4))*exp(-(wa*wa*Q1a+wa*wb*Q1b+wb*wb*Q1c));
@@ -180,6 +198,40 @@ int main(){
   fprintf(stdout,"V*Z=%lf\n",V*Z);
   fprintf(stdout,"J_3(%lf,%lf)=%lf\n",wa,wb,-W+V*Z);
   fprintf(stdout,"J_3(%lf,%lf)=%lf\n",wa,wb,J3(wa,wb));
+  */
+
+  /*
+  int ndim=2;
+  double x[2];
+  x[0]=0.5;
+  x[1]=0.5;
+  double fdata[2];
+  fdata[0]=fdata[1]=0.0;
+  int fdim=1;
+  double fval[1];
+  gaussianarg(ndim,x,fdata,fdim,fval);
+  */
+
+
+  FILE *pf;
+  pf=fopen("dataEnt.dat","w");
+  double wa,wb;
+  double ll=3;
+  double dl=0.05;
+  wa=wb=1.5265566588595902e-15;
+  ws[0]=wa;
+  ws[1]=wb;
+  gaussianval(ws,res);
+  //fprintf(stdout,"%lf %lf %lf\n",Q3a,Q3b,Q3c);
+  fprintf(stdout,"At the origin %lf +/- %lf\n",res[0],res[1]);
+
+  for(wa=-ll;wa<=ll;wa+=dl){
+    for(wb=-ll;wb<=ll;wb+=dl){
+      fprintf(pf,"%.16e %.16e %.16e\n",wa,wb,J3(wa,wb));
+      fflush(pf);
+    }
+  }
+  fclose(pf);
 
   return 0;
 }
