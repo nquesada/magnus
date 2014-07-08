@@ -6,15 +6,15 @@
 
 /* Values for cubature */
 #define MAX_EVAL_INT 10000000 //Maximum number of evaluations
-#define REQ_ABS_ERROR 1e-6 //Required absolute error
-#define REQ_REL_ERROR 1e-4 //Required relative error
+#define REQ_ABS_ERROR 1e-7 //Required absolute error
+#define REQ_REL_ERROR 1e-5 //Required relative error
 
 /* Value used to truncate J_3 using the bound for J_3
 obtained in the paper. If the bound on J_3 is less
 eps the J_3 is not calculated explicitly and it is 
 assumed to be zero. eps should be at least as small
 as REQ_ABS_ERROR */
-#define eps 1e-6
+#define eps 1e-7
 
 
 /* This is simply 4/sqrt(3) to 20 decimal places*/
@@ -27,10 +27,15 @@ as REQ_ABS_ERROR */
 #define sc  319.008
 #define s   1.0 //\sigma
 */
+/* 
+#define sa  588.751
+#define sb  590.769
+#define sc  589.745
+*/
 
-#define sa  10.0
-#define sb  11.0
-#define sc  9.0
+#define sa  214.888
+#define sb  227.626
+#define sc  252.726
 
 #define s   1.0 //\sigma
 
@@ -216,8 +221,8 @@ int main(){
   FILE *pf;
   pf=fopen("dataEnt.dat","w");
   double wa,wb;
-  double ll=3;
-  double dl=0.05;
+  double ll=1.5;
+  double dl=0.005;
   wa=wb=1.5265566588595902e-15;
   ws[0]=wa;
   ws[1]=wb;
@@ -227,9 +232,10 @@ int main(){
 
   for(wa=-ll;wa<=ll;wa+=dl){
     for(wb=-ll;wb<=ll;wb+=dl){
-      fprintf(pf,"%.16e %.16e %.16e\n",wa,wb,J3(wa,wb));
-      fflush(pf);
+      fprintf(pf,"%.16e ",J3(wa,wb));
     }
+    fprintf(pf,"\n");
+    fflush(pf);
   }
   fclose(pf);
 
