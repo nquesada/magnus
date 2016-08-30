@@ -11,24 +11,24 @@
 
 
 int c_magnus2aint(double wa, double waa, double *res){
-  unsigned ndim=2;
-  unsigned fdim=2;
-  double xmin[ndim];
-  xmin[0]=0.0;
-  xmin[1]=-1.0;
-  double xmax[ndim];
-  xmax[0]=1.0;
-  xmax[1]=1.0;
+  const static unsigned ndim=2;
+  const static unsigned fdim=2;
+  const static double xmin[2]={0.0,-1.0};
+  //  xmin[0]=0.0;
+  //  xmin[1]=-1.0;
+  double xmax[2]={1.0,1.0};
+  //  xmax[0]=1.0;
+  //  xmax[1]=1.0;
  
   double val[fdim];
   double error[fdim];
-  double ws[2];
-  ws[0]=wa;
-  ws[1]=waa;
-  double maxEval=MAX_EVAL_INT;
-  double reqAbsError=REQ_ABS_ERROR;
-  double reqRelError=REQ_REL_ERROR;
-  double enorm=ERROR_L2;
+  double ws[2]={wa,waa};
+  //  ws[0]=wa;
+  //  ws[1]=waa;
+  const static double maxEval=MAX_EVAL_INT;
+  const static double reqAbsError=REQ_ABS_ERROR;
+  const static double reqRelError=REQ_REL_ERROR;
+  const static double enorm=ERROR_L2;
  
 
   hcubature(fdim,c_magnus2a,ws,ndim,xmin,xmax,(size_t)maxEval,reqAbsError,reqRelError,enorm,val,error);
@@ -138,11 +138,11 @@ int c_magnus3sint(double wa, double wb, double *res){
   res[3]=error[1];
   return 0;
 }
-/*
 
-int magnus3wint(double wa, double wb, double *res){
+
+int c_magnus3wint(double wa, double wb, double *res){
   unsigned ndim=3;
-  unsigned fdim=1;
+  unsigned fdim=2;
   double xmin[ndim];
   xmin[0]=0.0;
   xmin[1]=-1.0;
@@ -163,10 +163,12 @@ int magnus3wint(double wa, double wb, double *res){
   double enorm=ERROR_L2;
   
 
-  hcubature(fdim,magnus3w,ws,ndim,xmin,xmax,(size_t)maxEval,reqAbsError,reqRelError,enorm,val,error);
+  hcubature(fdim,c_magnus3w,ws,ndim,xmin,xmax,(size_t)maxEval,reqAbsError,reqRelError,enorm,val,error);
   //HERE IMPORTANT this is the prefactor of 3 in the definition of the integrals.
   res[0]=val[0];
   res[1]=error[0];
+  res[2]=val[1];
+  res[3]=error[1];
   return 0;
 }
-*/
+
