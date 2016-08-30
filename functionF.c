@@ -30,3 +30,18 @@ double F(double wo, double we, double wp){
 
 }
 
+void c_F(double wo, double we, double wp, double res[2]){
+  double momentum,energy;
+  momentum=so*wo + se*we - sp*wp;
+  energy=wp;
+  double tmp=momentum*momentum+energy*energy;
+  if(tmp>36){
+    res[0]=0.0;
+    res[1]=0.0;
+  }
+  else{
+    res[0]=M_SQRT1_2*exp(-tmp);
+    res[1]=M_SQRT1_2*exp(-tmp);
+  }
+
+}

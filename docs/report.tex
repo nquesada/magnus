@@ -30,43 +30,44 @@ The Magnus library comprises two different and independent software pieces. Both
 The first one is completely contained in the file \verb|gauss_magnus.c|. It calculates the Magnus third order Magnus correction for a phase matching and pump functions of the form:
 \begin{eqnarray}
 \Phi(\omega_a,\omega_b,\omega_p)&=&\exp(-(s_a \omega_a+s_b \omega_b-s_p \omega_p)^2)\\
-\alpha(\omega_p)&=&\frac{\sigma}{\sqrt{\pi}} \exp(-\sigma^2 \omega_p^2)
+\alpha(\omega_p)&=&\frac{\tau}{\sqrt{\pi}} \exp(-\tau^2 \omega_p^2)
 \end{eqnarray}
 The third order Magnus term can be written as:
 \begin{eqnarray}\label{J_3}
 J_3(\omega_a,\omega_b)&=&-W(\omega_a,\omega_b)+V(\omega_a,\omega_b) Z(\omega_a,\omega_b)\\
-Z(\omega_a,\omega_b)&=&4\sqrt{\pi} \sigma^3 \varepsilon^3 \exp\left(-\mathbf{u} \mathbf{N} \mathbf{u}^T/3\right)\\
-W(\omega_a,\omega_b)&=&\frac{2\pi^{3/2} \varepsilon^3 \sigma^3}{3 R^2} \exp\left(-\mathbf{u}\mathbf{Q}_1\mathbf{u}^T/R^4 \right)\\
-V(\omega_a,\omega_b)&=& \int_0^{\infty} dr \int_0^{\infty} dq \exp\left(-(r,q) \mathbf{Q}_3 (r,q)^T \right) \times \nonumber\\
-&&\cos\left(4 \sigma \eta_{ab}( \omega_a q+ \omega_b r)/\sqrt{3}  \right)\nonumber
+Z(\omega_a,\omega_b)&=&4\sqrt{\pi} \tau^3 \varepsilon^3 \exp\left(-\mathbf{u} \mathbf{N} \mathbf{u}^T/3\right)\\
+W(\omega_a,\omega_b)&=&\frac{2\pi^{3/2} \varepsilon^3 \tau^3}{3 R^2} \exp\left(-\mathbf{u}\mathbf{Q}\mathbf{u}^T/R^4 \right)\\
+V(\omega_a,\omega_b)&=& \int_0^{\infty} dr \int_0^{\infty} dq \exp\left(-(r,q) \mathbf{M} (r,q)^T \right) \times \nonumber\\
+&&\cos\left(4 \tau \eta_{ab}( \omega_a q+ \omega_b r)/\sqrt{3}  \right)\nonumber
 \end{eqnarray}
+In what follows in this section we assume that $\varepsilon=1$.
 with:
 \begin{eqnarray}\label{Nu}
 \mathbf{N}&=& \left(
 \begin{array}{cc}
-\chi_a^2 & \chi^2 \\
-\chi^2 & \chi_b^2 \\
+\mu_a^2 & \mu^2 \\
+\mu^2 & \mu_b^2 \\
 \end{array}
 \right)\\ 
 \mathbf{u}&=&(\omega_a-\tilde \omega_a,\omega_b-\tilde \omega_b) \nonumber\\
 \eta _{a/b}&=&s_p-s_{a/b} \nonumber\\
-\chi ^2&=&\sigma ^2+\eta _a \eta _b \nonumber\\
-\chi _{a/b}^2&=&\sigma ^2+\eta _{a/b}^2. \nonumber\\
+\mu ^2&=&\tau ^2+\eta _a \eta _b \nonumber\\
+\mu _{a/b}^2&=&\tau ^2+\eta _{a/b}^2. \nonumber\\
 \eta_{ab} &=&-\eta_{ba}=\eta _a-\eta _b \nonumber\\
-R^4&=&4 \chi_a^2 \chi_b^2-\chi^4=4(\eta_a-\eta_b)^2 \sigma^2+3 (\eta_a \eta_b+\sigma^2)^2 \nonumber\\
-M^4&=&4 \chi_a^2 \chi_b^2-3\chi^4\nonumber\\
-\mathbf{Q}_1&=&
+R^4&=&4 \mu_a^2 \mu_b^2-\mu^4=4(\eta_a-\eta_b)^2 \tau^2+3 (\eta_a \eta_b+\tau^2)^2 \nonumber\\
+M^4&=&4 \mu_a^2 \mu_b^2-3\mu^4\nonumber\\
+\mathbf{Q}&=&
 \left(
 \begin{array}{cc}
-M^4 \chi _a^2 & \chi ^6 \\
-\chi ^6 & M^4 \chi _b^2
+M^4 \mu _a^2 & \mu ^6 \\
+\mu ^6 & M^4 \mu _b^2
 \end{array}
 \right)\\
-\mathbf{Q}_3&=&
+\mathbf{M}&=&
 \left(
 \begin{array}{cc}
-2  \chi _a^2 &  \chi ^2  \\
- \chi ^2  & 2  \chi _b^2 \\
+2  \mu _a^2 &  \mu ^2  \\
+ \mu ^2  & 2  \mu _b^2 \\
 \end{array}
 \right)
 \end{eqnarray}
@@ -86,7 +87,7 @@ To calculate numerical integrals extending to infinity one must perform the foll
 We can now write $V$ in the following way:
 \begin{eqnarray}
 V(\omega_a,\omega_b)&=& \int_0^{\infty} dr \int_0^{\infty} dq g(\omega_a,\omega_b,r,q)\\
-g(\omega_a,\omega_b,r,q)&=&\exp\left(-(r,q) \mathbf{Q}_3 (r,q)^T \right) \cos\left(4 \sigma \eta_{ab}( \omega_a q+ \omega_b r)/\sqrt{3}  \right)\nonumber
+g(\omega_a,\omega_b,r,q)&=&\exp\left(-(r,q) \mathbf{M} (r,q)^T \right) \cos\left(4 \tau \eta_{ab}( \omega_a q+ \omega_b r)/\sqrt{3}  \right)\nonumber
 \end{eqnarray}
 Now we can use (\ref{cv}) twice to rewrite
 \begin{eqnarray}\label{int}
@@ -109,10 +110,17 @@ The next function in \verb|gauss_magnus.c|, \verb|int gaussianval(double fdata[2
 \end{itemize}
 Finally the function \verb|double J3(double wa,double wb)| calculates $J_3$ as given in (\ref{J_3}). It first calculates the bound:
 \begin{eqnarray}
-|J_3(\omega_a,\omega_b)| &\leq& \frac{2\pi^{3/2} \sigma^3}{3 R^2} \exp\left(-\mathbf{u}\mathbf{Q}_1\mathbf{u}^T/R^4 \right)\\
-&&+\frac{2 \pi^{3/2}\sigma^3 \varepsilon^3}{R^2} \exp\left(-\mathbf{u} \mathbf{N} \mathbf{u}^T/3\right)
+|J_3(\omega_a,\omega_b)| &\leq& \frac{2\pi^{3/2} \varepsilon^3 \tau^3}{3 R^2} \left( \exp\left(-\mathbf{u}\mathbf{Q}\mathbf{u}^T/R^4 \right)+2 \exp\left(-\mathbf{u} \mathbf{N} \mathbf{u}^T/3\right)\right)
 \end{eqnarray}
-which is analytical. If this bound is less than the macro \verb|eps| the integral is approximated to be \verb|eps|$\ll 1$. If it is bigger than is calculated using \verb|gaussianval| and combined with $W$ and $Z$ to give $J_3$.
+which is analytical. If this bound is less than the macro \verb|eps| the integral is approximated to 0. If it is bigger than is calculated using \verb|gaussianval| and combined with $W$ and $Z$ to give $J_3$. To test the correcteness of the calculation this rare a simple set of numerical values
+\begin{eqnarray}
+s_c=0\\
+s_a=1\\
+s_b=-1\\
+\tau=1\\
+J_3(0,0)=0.19635
+J_3(1,1)=-0.0530724
+\end{eqnarray}
 
 
 \section{General calculation of the Second and Third order Magnus terms}

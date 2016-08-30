@@ -17,5 +17,6 @@
 
 
 double F(double wo, double we, double wp);
+void c_F(double wo, double we, double wp, double res[2]);
 
 #endif

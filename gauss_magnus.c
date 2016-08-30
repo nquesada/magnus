@@ -33,11 +33,11 @@ as REQ_ABS_ERROR */
 #define sc  589.745
 */
 
-#define sa  214.888
-#define sb  227.626
-#define sc  252.726
+#define sa  1.0
+#define sb  -1.0
+#define sc  0.0
 
-#define s   1.0 //\sigma
+#define s   1.0 //\this is the \tau of the text
 
 /* derived quantitities, do not modify! */
 
@@ -53,24 +53,28 @@ as REQ_ABS_ERROR */
 #define R4  (4*(s*s+(sc-sa)*(sc-sa))*(s*s+(sc-sb)*(sc-sb))-(s*s+(sc-sa)*(sc-sb))*(s*s+(sc-sa)*(sc-sb))) //R^4
 #define M4  (4*(s*s+(sc-sa)*(sc-sa))*(s*s+(sc-sb)*(sc-sb))-3*(s*s+(sc-sa)*(sc-sb))*(s*s+(sc-sa)*(sc-sb))) //M^4
 
+// For the variables defined up to this point a,b,c are used to label properties of the different mode 
+
+
+
 //This are the elements of the different matrices in the paper
-// Xa indicates the element (1,1), Xb twice the elemen (1,2)=(2,1)
-// Xc indicate the element 2,2
+// Xa indicates the element (1,1), Xb twice the element (1,2)=(2,1)
+// Xc indicates the element 2,2
 
 #define Na (ca2)
 #define Nb (2*c2)
 #define Nc (cb2)
-#define Q1a (M4*ca2/R4)
-#define Q1b (2*c2*c2*c2/R4)
-#define Q1c (M4*cb2/R4)
-#define Q3a (2*ca2)
-#define Q3b (2*c2)
-#define Q3c (2*cb2)
+#define Qa (M4*ca2/R4)
+#define Qb (2*c2*c2*c2/R4)
+#define Qc (M4*cb2/R4)
+#define Ma (2*ca2)
+#define Mb (2*c2)
+#define Mc (2*cb2)
 
 /* This quantity defines the prefactor inside the cosine */
 #define vv M_4_S_3*s*(sb-sa)
-
-
+#define Wpref M_PI*M_PI*M_2_SQRTPI*s*s*s/(3.0*sqrt(R4))
+#define Zpref 4*sqrt(M_PI)*s*s*s
 int gaussianarg(unsigned ndim, const double *x, void *fdata, unsigned fdim, double *fval){
   double p,q;
   p=x[0]/(1-x[0]);
@@ -86,17 +90,12 @@ int gaussianarg(unsigned ndim, const double *x, void *fdata, unsigned fdim, doub
   wb=((double *) fdata)[1];
   double quad,lin,pr;
 
-  quad=-(Q3a*p*p+Q3b*p*q+Q3c*q*q);
-  //  fprintf(stdout,"quad=%lf\n",quad);
+  quad=-(Ma*p*p+Mb*p*q+Mc*q*q);
+
   
   pr=(wa*q)+(wb*p);
   lin=vv*pr;
-  //  fprintf(stdout,"p= %lf q= %lf v= %lf wa= %lf wb= %lf lin= %lf pr= %.16e\n",p,q,vv,wa,wb,lin,pr);
-
-  // fprintf(stdout,"jacs= %lf %lf\n",tmp0,tmp1);
-
   fval[0]=tmp0*tmp1*exp(quad)*cos(lin);
-  //  fprintf(stdout,"val=%lf\n",fval[0]);
 
   return 0;
 }
@@ -126,10 +125,10 @@ int gaussianval(double fdata[2], double *res){
 double J3(double wa,double wb){
   double res[2];
   double ws[2];
-  double W=M_PI*M_PI*M_2_SQRTPI*s*s*s/(3.0*sqrt(R4))*exp(-(wa*wa*Q1a+wa*wb*Q1b+wb*wb*Q1c));
-  double Z=4*sqrt(M_PI)*s*s*s*exp(-(wa*wa*Na+wb*wa*Nb+wb*wb*Nc)/3.0);
+  double W=Wpref*exp(-(wa*wa*Qa+wa*wb*Qb+wb*wb*Qc));
+  double Zp=exp(-(wa*wa*Na+wb*wa*Nb+wb*wb*Nc)/3.0);
 
-  double bound=W+Z*M_PI/(2*sqrt(R4));
+  double bound=W+Wpref*2*Zp;
   if(bound<eps){
     return eps;
   }
@@ -138,12 +137,13 @@ double J3(double wa,double wb){
     ws[1]=wb;
     gaussianval(ws,res);
     double V=res[0];
-    return -W+V*Z;
+    return W-V*Zp*Zpref;
   }
 }
 
 
 int main(){
+
 
   double res[2];
   double ws[2];
@@ -171,9 +171,9 @@ int main(){
   fprintf(stdout,"eb=%.16e\n",eb);
 
 
-  fprintf(stdout,"Q1a=%.16e\n",Q1a);
-  fprintf(stdout,"Q1b=%.16e\n",Q1b);
-  fprintf(stdout,"Q1c=%.16e\n",Q1c);
+  fprintf(stdout,"Qa=%.16e\n",Qa);
+  fprintf(stdout,"Qb=%.16e\n",Qb);
+  fprintf(stdout,"Qc=%.16e\n",Qc);
 
   fprintf(stdout,"v=%.16e\n",vv);
 
@@ -186,15 +186,15 @@ int main(){
   fprintf(stdout,"R4=%.16e\n",R4);
 
 
-  fprintf(stdout,"Q3a=%.16e\n",Q3a);
-  fprintf(stdout,"Q3b=%.16e\n",Q3b);
-  fprintf(stdout,"Q3c=%.16e\n",Q3c);
+  fprintf(stdout,"Ma=%.16e\n",Ma);
+  fprintf(stdout,"Mb=%.16e\n",Mb);
+  fprintf(stdout,"Mc=%.16e\n",Mc);
 
   
   /*  gaussianval(ws,res);
   fprintf(stdout,"V=%lf +/- %lf\n",res[0],res[1]);
   double V=res[0];
-  double W=M_PI*M_PI*M_2_SQRTPI*s*s*s/(3.0*sqrt(R4))*exp(-(wa*wa*Q1a+wa*wb*Q1b+wb*wb*Q1c));
+  double W=M_PI*M_PI*M_2_SQRTPI*s*s*s/(3.0*sqrt(R4))*exp(-(wa*wa*Qa+wa*wb*Qb+wb*wb*Qc));
   double Z=4*sqrt(M_PI)*s*s*s*exp(-(wa*wa*Na+wb*wa*Nb+wb*wb*Nc)/3.0);
 
 
@@ -222,21 +222,32 @@ int main(){
   pf=fopen("dataEnt.dat","w");
   double wa,wb;
   double ll=1.5;
-  double dl=0.005;
-  wa=wb=1.5265566588595902e-15;
+  double dl=0.01;
+  wa=wb=1.0;//1.5265566588595902e-15+1;
   ws[0]=wa;
   ws[1]=wb;
   gaussianval(ws,res);
-  //fprintf(stdout,"%lf %lf %lf\n",Q3a,Q3b,Q3c);
-  fprintf(stdout,"At the origin %lf +/- %lf\n",res[0],res[1]);
 
+  fprintf(stdout,"At the origin %lf +/- %lf\n",res[0],res[1]);
+  wa=0.0;
+  wb=0.0;
+  fprintf(stdout,"J3(%lf,%lf)=%lf\n",wa,wb,J3(wa,wb));
+
+  wa=1.0;
+  wb=1.0;
+  fprintf(stdout,"J3(%lf,%lf)=%lf\n",wa,wb,J3(wa,wb));
+
+  wa=1.0;
+  wb=2.0;
+  fprintf(stdout,"J3(%lf,%lf)=%lf\n",wa,wb,J3(wa,wb));
+  /*
   for(wa=-ll;wa<=ll;wa+=dl){
     for(wb=-ll;wb<=ll;wb+=dl){
       fprintf(pf,"%.16e ",J3(wa,wb));
     }
     fprintf(pf,"\n");
     fflush(pf);
-  }
+    }*/
   fclose(pf);
 
   return 0;
