@@ -19,5 +19,7 @@ int c_magnus2bint(double wb, double wbb, double *res);
 int c_magnus3int(double wa, double wb, double *res);
 int c_magnus3sint(double wa, double wb, double *res);
 int c_magnus3wint(double wa, double wb, double *res);
+int c_magnus3waint(double wa, double wb, double *res);
+int c_magnus3wbint(double wa, double wb, double *res);
 
 #endif

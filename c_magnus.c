@@ -195,3 +195,89 @@ int c_magnus3w(unsigned ndim, const double *x, void *fdata, unsigned fdim, doubl
 }
 
 
+
+
+
+int c_magnus3wa(unsigned ndim, const double *x, void *fdata, unsigned fdim, double *fval){
+  double a,b,w,p,q;
+  p=x[0]/(1-x[0]);
+  q=x[1]/(1-x[1]*x[1]);
+  w=x[2]/(1-x[2]*x[2]);
+  //jacobians
+  double tmp1,tmp2,tmp3;
+  tmp1=1-x[0];
+  tmp1=1.0/(tmp1*tmp1);
+  tmp2=1-x[1]*x[1];
+  tmp2=(1+x[1]*x[1])/(tmp2*tmp2);
+  tmp3=1-x[2]*x[2];
+  tmp3=(1+x[2]*x[2])/(tmp3*tmp3);
+
+  tmp1=tmp1*tmp2*tmp3/p;
+
+  a=((double *) fdata)[0];
+  b=((double *) fdata)[1];
+
+  double f1[2],f2[2],f2p[2],f3[2],f3p[2];
+
+  c_F(a,w,a + w,f1);
+  c_F(q,b,b + q + p,f2);
+  c_F(q,b,b + q - p,f2p);
+  c_F(q,w,q + p + w,f3);
+  c_F(q,w,q - p + w,f3p);
+
+
+  //The next line was generated automatically from mathematica, do not touch!
+
+  fval[0]=tmp1*(f1[0]*f2[0]*f3[0] - f1[1]*f2[1]*f3[0] + f1[1]*f2[0]*f3[1] + 
+		f1[0]*f2[1]*f3[1] - f1[0]*f2p[0]*f3p[0] + f1[1]*f2p[1]*f3p[0] - 
+		f1[1]*f2p[0]*f3p[1] - f1[0]*f2p[1]*f3p[1]);
+		     
+  fval[1]=tmp1*(f1[1]*f2[0]*f3[0] + f1[0]*f2[1]*f3[0] - f1[0]*f2[0]*f3[1] + f1[1]*f2[1]*f3[1] - 
+		f1[1]*f2p[0]*f3p[0] - f1[0]*f2p[1]*f3p[0] + f1[0]*f2p[0]*f3p[1] - 
+		f1[1]*f2p[1]*f3p[1]);
+
+
+
+  return 0;
+}
+
+
+int c_magnus3wb(unsigned ndim, const double *x, void *fdata, unsigned fdim, double *fval){
+  double a,b,w,p,q;
+  p=x[0]/(1-x[0]);
+  q=x[1]/(1-x[1]*x[1]);
+  w=x[2]/(1-x[2]*x[2]);
+  //jacobians
+  double tmp1,tmp2,tmp3;
+  tmp1=1-x[0];
+  tmp1=1.0/(tmp1*tmp1);
+  tmp2=1-x[1]*x[1];
+  tmp2=(1+x[1]*x[1])/(tmp2*tmp2);
+  tmp3=1-x[2]*x[2];
+  tmp3=(1+x[2]*x[2])/(tmp3*tmp3);
+
+  tmp1=tmp1*tmp2*tmp3/p;
+
+  a=((double *) fdata)[0];
+  b=((double *) fdata)[1];
+
+  double f4[2],f5[2],f5p[2],f6[2],f6p[2];
+
+  c_F(w,b,b + w,f4);
+  c_F(a,q,a + q + p,f5);
+  c_F(a,q,a + q - p,f5p);
+  c_F(w,q,q + p + w,f6);
+  c_F(w,q,q - p + w,f6p);
+
+
+  //The next line was generated automatically from mathematica, do not touch!
+
+
+  fval[0]=tmp1*(f4[0]*f5[0]*f6[0] - f4[1]*f5[1]*f6[0] + f4[1]*f5[0]*f6[1] + 
+		f4[0]*f5[1]*f6[1] - f4[0]*f5p[0]*f6p[0] + f4[1]*f5p[1]*f6p[0] - 
+		f4[1]*f5p[0]*f6p[1] - f4[0]*f5p[1]*f6p[1]);
+  fval[1]=tmp1*(f4[1]*f5[0]*f6[0] + f4[0]*f5[1]*f6[0] - f4[0]*f5[0]*f6[1] + f4[1]*f5[1]*f6[1] - 
+		f4[1]*f5p[0]*f6p[0] - f4[0]*f5p[1]*f6p[0] + f4[0]*f5p[0]*f6p[1] - 
+		f4[1]*f5p[1]*f6p[1]);
+  return 0;
+}

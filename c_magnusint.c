@@ -133,3 +133,48 @@ int c_magnus3wint(double wa, double wb, double *res){
   return 0;
 }
 
+int c_magnus3waint(double wa, double wb, double *res){
+  const unsigned ndim=3;
+  const unsigned fdim=2;
+  const double xmin[3]={0.0,-1.0,-1.0};
+  double xmax[3]={1.0,1.0,1.0};
+
+  double val[fdim];
+  double error[fdim];
+  double ws[2]={wa,wb};
+  const double maxEval=MAX_EVAL_INT;
+  const double reqAbsError=REQ_ABS_ERROR;
+  const double reqRelError=REQ_REL_ERROR;
+  
+
+  hcubature(fdim,c_magnus3wa,ws,ndim,xmin,xmax,(size_t)maxEval,reqAbsError,reqRelError,ERROR_L2,val,error);
+
+  res[0]=val[0];
+  res[1]=error[0];
+  res[2]=val[1];
+  res[3]=error[1];
+  return 0;
+}
+
+int c_magnus3wbint(double wa, double wb, double *res){
+  const unsigned ndim=3;
+  const unsigned fdim=2;
+  const double xmin[3]={0.0,-1.0,-1.0};
+  double xmax[3]={1.0,1.0,1.0};
+
+  double val[fdim];
+  double error[fdim];
+  double ws[2]={wa,wb};
+  const double maxEval=MAX_EVAL_INT;
+  const double reqAbsError=REQ_ABS_ERROR;
+  const double reqRelError=REQ_REL_ERROR;
+  
+
+  hcubature(fdim,c_magnus3wb,ws,ndim,xmin,xmax,(size_t)maxEval,reqAbsError,reqRelError,ERROR_L2,val,error);
+
+  res[0]=val[0];
+  res[1]=error[0];
+  res[2]=val[1];
+  res[3]=error[1];
+  return 0;
+}
